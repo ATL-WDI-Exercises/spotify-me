@@ -1,7 +1,4 @@
-## jQuery AJAX Review
-> [Here](https://github.com/marcwright/ajax_lesson) is the repo for today's AJAX review.
-
-##Spotify-Me Code Along
+##Spotify-Me AJAX Code Along
 1) Clone the repo for our Spotify Me exercise [here](https://github.com/ga-dc/spotify-me). Open the repo in Sublime. Take a look at the `spotify.js` file. 
 
 Note that we have the Spotify endpoints to search by either artist and track. Try pasting these into your browser with a keyword and see what's returned. Eventually we're gonna use string concatenation to create one flexible endpoint.
