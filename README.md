@@ -5,7 +5,7 @@ Today we're gonna build a simple Express app that consumes the [Spotify API](htt
 ![Spotify App Screenshot](screenshot.png)
 
 
-## YOU DO - Find the API Endpoints (10 min)
+## YOU DO - Find the API Endpoints
 We have some starter code for you, but first, let's checkout the [Spotify API Documentation](https://developer.spotify.com/). We want the ability to search by artist or track name. Read through the API documentation and find the 2 endpoints we'll need. 
 
 You can test them out by pasting them directly into your browser's URL bar, by making a cURL request in the Terminal, or by using Insomnia. You should see a crazy looking JSON object. 
