@@ -186,7 +186,7 @@ function displayResults(results) {
 }
 ```
 
-### Check out the `solution-code` branch for a completed version.
+### Check out the `solution` branch for a completed version.
 
 ##BONUS
 
