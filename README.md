@@ -1,19 +1,47 @@
-##Spotify-Me AJAX Code Along
-1) Clone the repo for our Spotify Me exercise [here](https://github.com/ga-dc/spotify-me). Open the repo in Sublime. Take a look at the `spotify.js` file. 
+#Spotify-Me Express/AJAX Code Along
+Today we're gonna build a simple Express app that consumes the [Spotify API](https://developer.spotify.com/). Here's a screen shot:
+
+
+![Spotify App Screenshot](screenshot.png)
+
+
+## YOU DO - Find the API Endpoints (10 min)
+We have some starter code for you, but first, let's checkout the [Spotify API Documentation](https://developer.spotify.com/). We want the ability to search by artist or track name. Read through the API documentation and find the 2 endpoints we'll need. 
+
+You can test them out by pasting them directly into your browser's URL bar, by making a cURL request in the Terminal, or by using Insomnia. You should see a crazy looking JSON object. 
+
+## Code Along
+
+Clone the `starter-code` and `npm install`. Open the repo in Sublime. Take a look at the `public/javascripts/script.js` file. 
 
 Note that we have the Spotify endpoints to search by either artist and track. Try pasting these into your browser with a keyword and see what's returned. Eventually we're gonna use string concatenation to create one flexible endpoint.
 
 Note that the jQuery library is already included. We also have a handy drop-down menu in our HTML.
 
-2) We need to create an event handler for our submit button. Let's get it working with an alert first:
+### Create an Event Handler
+
+We need to create an event handler for our submit button. Let's first get it working with an alert and wrap it in a `$(document).ready({});` function.
+>remember the shorthand for this?
 
 ```js
-$('form#search input[type=submit]').on("click", function(){
-    alert("working");
+$(function() {
+  $('form#search input[type=submit]').on("click", function(event){
+    event.preventDefault;
+    alert("Click Event Working");
   });
+});
 ```
 
-3) Let's create two functions, one to request the results and one to display them:
+What does `event.preventDefault()` mean?
+
+>(From W3 Schools) The `event.preventDefault()` method stops the default action of an element from happening.
+	
+For example, `event.preventDefault()` will prevent a submit button from submitting a form or prevent a link from following the URL. In this case, we're preventing the submit button from reloading the page.
+
+
+###Create a `searchSpotify` function
+
+We'll write two functions, one to make the Spotify API request the results and one to display the results. Here are the basics:
 
 ```js
 function searchSpotify(event) {
@@ -25,58 +53,58 @@ function displayResults() {
  
 }
 ```
->What does event.preventDefault() mean?
 
->(From W3 Schools) The event.preventDefault() method stops the default action of an element from happening.
-	
->For example, prevent a submit button from submitting a form or prevent a link from following the URL. In this case, from reloading the page.
 
-4) Let's add the function searchSpotify to our event handler.
+Let's make `searchSpotify` the callback function in our event handler.
 
 ```js
-$(document).ready(function() {
+$(function() {
   $('form#search input[type=submit]').on("click", searchSpotify);
 });
 ```
 
-5) Inside our `searchSpotify` function, let's capture the user search term input using jQuery and assign it to a variable. We'll also `console.log` it to confirm it's working:
+### Capture the User Input in the `searchSpotify` function
+Inside our `searchSpotify` function, let's capture what the user wants to search for using jQuery and assign it to a variable. We'll also `console.log` the variable to confirm it's working:
 
 ```js
 var $term = $("#search-keyword").val();
 console.log($term);
 ```
 
-6) Inside our `searchSpotify` function, let's also capture the search type from the drop-down and add it to our `console.log`:
+We also want to capture the value of the user's dropdown menu selection. Let's assign it to a variable and add it to our `console.log`:
 
 ```js
 var $searchType = $("#search-type").val();
 console.log($term, $searchType);
 ```
 
-7) Take a close look at our two Spotify URLs. What is the difference between them? Let's use string concatenation to build our two URLs that will vary based on the user's search and term preferences:
+### Use AJAX to ping the API
+Take a close look at our two Spotify URLs. What is the difference between them? Let's use string concatenation to DRY up the URLs and combine them into one.
 
 ```js
-var url = 'http://ws.spotify.com/search/1/' + $searchType + '.json?q=' + $term;
+var url = 'https://api.spotify.com/v1/search?q=' + $term + '&type=' + $searchType
 ```
 
-8) Let's use `ajax` to ping the API:
+Let's use `ajax` to ping the API:
 
 ```js
  $.ajax({
     url: url,
-    method: "get"
+    method: "GET"
   }).done(function(data) {
     var resultsProperty = $searchType + "s";
-    displayResults(data[resultsProperty]);
-    console.log(data);
+    var results = data[resultsProperty]["items"]
+    displayResults(results);
+    console.log(results);
   });
 ```
 
-So, what's going on here? First, we're using AJAX to call our `url` which sends our returning data into our `.done()` method. 
+So, what's going on here? First, we're using AJAX to call our `url` using a `GET` request. We're also passing the returning data object into our `.done()` method. 
 
-Why are we adding an "s" to the searchType? Check out the data that's returned and you'll notice that the data object has keys for either "artists" or "tracks". Our `searchType` is singular, therefore we need to concatenate an "s" to the end.
+Why are we adding an "s" to the searchType? 
+>Check out the data that's returned and you'll notice that the data object has keys for either "artists" or "tracks". Our `searchType` is singular, therefore we need to concatenate an "s" to the end.
 
-Next, we pass the artists or tracks array to our `displayResults` function.
+Next, we assign the specific `artists` or `tracks` array to the variable `results`. We then pass `results` into `displayResults` as a argument (we'll add the argument in the next section).
 
 >BONUS... How could we accomplish this using `$.get`?
 
@@ -88,7 +116,33 @@ $.get(url).done(function(data) {
   }); 
 ```
 
-9) Let's finish our `displayResults` function. Above we passed `data[resultsProperty]` into our function as an argument. So let's add the ability to pass an argument into our function:
+### Here's the completed `searchSpotify` function:
+
+```javascript
+function searchSpotify(event) {
+  event.preventDefault(); 
+  
+  var $term = $("#search-keyword").val();
+  var $searchType = $("#search-type").val();
+
+  var url = 'https://api.spotify.com/v1/search?q=' + $term + '&type=' + $searchType
+  console.log($term, $searchType, url);
+
+  $.ajax({
+    url: url,
+    method: "GET"
+  }).done(function(data) {
+    var resultsProperty = $searchType + "s";
+    var results = data[resultsProperty]["items"]
+    displayResults(results);
+    console.log(results);
+  });
+}
+```
+
+### Complete the `displayResults` function
+
+Above we passed `results` into our function as an argument. So let's add the ability to pass an argument into our function:
 
 ```js
 function displayResults(results) {
@@ -96,7 +150,7 @@ function displayResults(results) {
 }
 ```
 
-10) Where in the DOM do we want to insert our results? Let's use jQuery to convert that element into an object and assign it to a variable. We're also gonna use `.empty()` on the container. Why?
+Where in the DOM do we want to insert our results? Let's create new `<li>` elements within the `<ul id="results">` element. We'll use jQuery to create an object of that element and assign it to a variable. We're also gonna use `.empty()` on the container. Why?
 
 >If we don't, each search result will append to the bottom of the current results div.
 
@@ -119,17 +173,20 @@ function displayResults(results) {
 }
 ```
 
-12) Now let's actually `append()` each result to our container as a link (so the user will be directed to Spotify):
+12) Now let's actually `append()` each result to our container as a link (so the user will be directed to Spotify in a new tab):
 
 ```js
 function displayResults(results) {
   var $container = $("#results");
+  console.log(results.items);
   $container.empty();
-  results.forEach(function(result) {
-    $container.append("<li><a href='" + result.href + "'>" + result.name + "</a></li>");
+  results.items.forEach(function(result) {
+    $container.append("<li><a href='" + result.external_urls.spotify + "' target='_blank'>" + result.name + "</a></li>");
   })
 }
 ```
+
+### Check out the `solution-code` branch for a completed version.
 
 ##BONUS
 
