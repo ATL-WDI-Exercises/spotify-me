@@ -24,7 +24,7 @@ We need to create an event handler for our submit button. Let's first get it wor
 >remember the shorthand for this?
 
 ```js
-$(function() {
+$(function () {
   $('form#search input[type=submit]').on("click", function(event){
     event.preventDefault;
     alert("Click Event Working");
